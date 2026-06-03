@@ -1,0 +1,61 @@
+{
+  "device_name": "Heat Meter Building A",
+  "device_type": "heatMeter",
+  "protocol": "Modbus RTU",
+  "description": "Счетчик тепла через RS485 Modbus RTU",
+  "attributes": {
+    "model": "ВЗЛЕТ ТМВ-3",
+    "manufacturer": "ВЗЛЕТ",
+    "serial_number": "2024-001",
+    "modbus_address": 1,
+    "baudrate": 9600,
+    "location": "Building A, Floor 1",
+    "installation_date": "2024-01-01"
+  },
+  "registers": {
+    "energy": {
+      "name": "Тепловая энергия",
+      "address": "0x0000",
+      "count": 2,
+      "type": "uint32",
+      "scale": 0.01,
+      "unit": "kWh",
+      "description": "累積тепловой энергии"
+    },
+    "flow": {
+      "name": "Расход",
+      "address": "0x0002",
+      "count": 2,
+      "type": "uint32",
+      "scale": 0.01,
+      "unit": "m³/h",
+      "description": "Текущий расход теплоносителя"
+    },
+    "temp_supply": {
+      "name": "Температура подачи",
+      "address": "0x0004",
+      "count": 1,
+      "type": "int16",
+      "scale": 0.1,
+      "unit": "°C",
+      "description": "Температура теплоносителя на входе"
+    },
+    "temp_return": {
+      "name": "Температура обратно",
+      "address": "0x0005",
+      "count": 1,
+      "type": "int16",
+      "scale": 0.1,
+      "unit": "°C",
+      "description": "Температура теплоносителя на выходе"
+    }
+  },
+  "telemetry_keys": [
+    "energy",
+    "flow",
+    "temp_supply",
+    "temp_return",
+    "power",
+    "status"
+  ]
+}
