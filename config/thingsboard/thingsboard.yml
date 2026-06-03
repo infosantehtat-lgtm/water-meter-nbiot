@@ -1,0 +1,33 @@
+# ThingsBoard Configuration
+
+server:
+  address: 0.0.0.0
+  port: 8080
+  servlet:
+    context-path: ""
+
+spring:
+  datasource:
+    driverClassName: org.postgresql.Driver
+    hikari:
+      maximumPoolSize: 5
+      minimumIdle: 5
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    database-platform: org.hibernate.dialect.PostgreSQL9Dialect
+
+thingsboard:
+  server:
+    address: 0.0.0.0
+    port: 8080
+  queue:
+    type: in-memory
+    in_memory:
+      stats:
+        enabled: true
+        print_interval_ms: 60000
+  security:
+    jwt:
+      tokenExpirationTime: 900
+      refreshTokenExpTime: 604800

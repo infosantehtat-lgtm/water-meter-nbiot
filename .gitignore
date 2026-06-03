@@ -1,0 +1,43 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Backups
+backups/
+*.sql
+*.dump
+
+# Logs
+*.log
+logs/
+
+# Node modules
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Generated files
+*.pyc
+__pycache__/
+*.egg-info/
+dist/
+build/
+
+# Database
+.postgres_data/
+postgres_data/
+
+# Cache
+.cache/
+.pytest_cache/

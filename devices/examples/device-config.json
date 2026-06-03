@@ -1,0 +1,26 @@
+{
+  "device_name": "Water Meter 01",
+  "device_type": "waterMeter",
+  "description": "Счетчик воды в подъезде",
+  "attributes": {
+    "model": "WaterMeter-V2",
+    "manufacturer": "Aqua-Tech",
+    "firmware_version": "1.0.1",
+    "serial_number": "WM-2024-001",
+    "location": "Building A, Floor 1, Apartment 101",
+    "installation_date": "2024-01-15"
+  },
+  "telemetry_keys": [
+    "water_volume",
+    "flow_rate",
+    "temperature",
+    "pressure"
+  ],
+  "configuration": {
+    "send_interval_minutes": 15,
+    "readings_per_batch": 4,
+    "protocol": "HTTP",
+    "thingsboard_host": "192.168.1.100",
+    "thingsboard_port": 8080
+  }
+}

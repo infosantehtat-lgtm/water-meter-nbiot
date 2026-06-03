@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: water-meter-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_INITDB_ARGS: "-c shared_buffers=256MB -c max_connections=200"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./config/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - water-meter-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  thingsboard:
+    image: thingsboard/tb-postgres:latest
+    container_name: water-meter-thingsboard
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      TB_DATABASE_TS_TYPE: sql
+      SPRING_DATASOURCE_URL: jdbc:postgresql://${TB_POSTGRES_HOST}:${TB_POSTGRES_PORT}/${TB_POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${TB_POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${TB_POSTGRES_PASSWORD}
+      TB_QUEUE_TYPE: in-memory
+      TB_QUEUE_IN_MEMORY_STATS_PRINT_INTERVAL_MS: 60000
+    volumes:
+      - thingsboard_data:/data
+      - thingsboard_logs:/var/log/thingsboard
+      - ./config/thingsboard/thingsboard.yml:/config/thingsboard.yml
+    ports:
+      - "8080:8080"
+      - "1883:1883"
+      - "5683:5683/udp"
+    networks:
+      - water-meter-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/auth/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: water-meter-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_PROXY_X_FOR_COUNT: 1
+      PGADMIN_CONFIG_PROXY_X_PROTO_COUNT: 1
+      PGADMIN_CONFIG_PROXY_X_HOST_COUNT: 1
+      PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
+      PGADMIN_CONFIG_COOKIE_DEFAULT_SECURE: 'False'
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - water-meter-network
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+  thingsboard_data:
+    driver: local
+  thingsboard_logs:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  water-meter-network:
+    driver: bridge
