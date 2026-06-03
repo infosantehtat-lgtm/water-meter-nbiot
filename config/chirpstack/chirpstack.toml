@@ -1,0 +1,41 @@
+[general]
+log_level="info"
+log_format="json"
+
+[database]
+dsn="postgresql://chirpstack:chirpstack_password@chirpstack-postgres/chirpstack"
+auto_migrate=true
+
+[redis]
+url="redis://chirpstack-redis:6379"
+
+[network]
+net_id="000000"
+dedup_timeout="200ms"
+region="EU868"
+
+[api]
+bind="0.0.0.0:8080"
+jwt_secret="you-must-change-this-secret-key-here"
+
+[integration]
+enabled=["mqtt"]
+
+[[integration.mqtt]]
+event_topic_template="eu868/events/{{ .ApplicationName }}/{{ .DeviceName }}/{{ .EventType }}"
+command_topic_template="eu868/commands/{{ .ApplicationName }}/{{ .DeviceName }}/{{ .CommandType }}"
+broker="mqtt://mosquitto:1883"
+clean_session=true
+qos=0
+
+[gateway]
+backend="mqtt"
+
+[gateway.mqtt]
+server="mqtt://mosquitto:1883"
+clean_session=true
+qos=0
+connect_attempts=5
+connect_delay="1s"
+subscribe_topic_template="gateway/{{ .GatewayID }}/command/{{ .CommandType }}"
+publish_topic_template="gateway/{{ .GatewayID }}/event/{{ .EventType }}"

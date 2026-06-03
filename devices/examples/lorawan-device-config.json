@@ -1,0 +1,38 @@
+{
+  "device_name": "Water Meter LoRa 01",
+  "device_type": "waterMeterLoRa",
+  "description": "LoRaWAN счетчик воды",
+  "protocol": "LoRaWAN",
+  "attributes": {
+    "model": "LoRaWAN-WM-V1",
+    "manufacturer": "Aqua-Tech",
+    "firmware_version": "1.0.0",
+    "device_eui": "0102030405060708",
+    "app_eui": "0000000000000000",
+    "device_class": "A",
+    "adr_enabled": true,
+    "location": "Building A, Floor 2, Apartment 201"
+  },
+  "lorawan_config": {
+    "network_server": "chirpstack",
+    "region": "EU868",
+    "frequency_band": "868MHz",
+    "spreading_factor": "SF7",
+    "tx_power": "14dBm",
+    "send_interval_seconds": 600
+  },
+  "telemetry_keys": [
+    "water_volume",
+    "flow_rate",
+    "temperature",
+    "pressure",
+    "rssi",
+    "snr"
+  ],
+  "lpp_channels": {
+    "1": {"name": "water_volume", "type": "analog_input", "scale": "1/100"},
+    "2": {"name": "flow_rate", "type": "analog_input", "scale": "1/100"},
+    "3": {"name": "temperature", "type": "temperature", "scale": "1/10"},
+    "4": {"name": "pressure", "type": "barometric_pressure", "scale": "1/2"}
+  }
+}

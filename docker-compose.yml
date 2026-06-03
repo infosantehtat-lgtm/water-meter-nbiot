@@ -74,6 +74,85 @@ services:
       - postgres
     restart: unless-stopped
 
+  # LoRaWAN ChirpStack Components
+  chirpstack-postgres:
+    image: postgres:15-alpine
+    container_name: chirpstack-postgres
+    environment:
+      POSTGRES_DB: chirpstack
+      POSTGRES_USER: chirpstack
+      POSTGRES_PASSWORD: chirpstack_password
+      POSTGRES_INITDB_ARGS: "-c shared_buffers=256MB -c max_connections=200"
+    volumes:
+      - chirpstack_postgres_data:/var/lib/postgresql/data
+    networks:
+      - water-meter-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chirpstack"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  chirpstack-redis:
+    image: redis:7-alpine
+    container_name: chirpstack-redis
+    volumes:
+      - chirpstack_redis_data:/data
+    networks:
+      - water-meter-network
+    restart: unless-stopped
+
+  mosquitto:
+    image: eclipse-mosquitto:2-alpine
+    container_name: mosquitto
+    ports:
+      - "1883:1883"
+      - "8883:8883"
+    volumes:
+      - ./config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mosquitto_data:/mosquitto/data
+      - mosquitto_logs:/mosquitto/log
+    networks:
+      - water-meter-network
+    restart: unless-stopped
+
+  chirpstack:
+    image: chirpstack/chirpstack:4-latest
+    container_name: chirpstack
+    command: -c /etc/chirpstack/chirpstack.toml
+    ports:
+      - "8081:8080"
+      - "1700:1700/udp"
+    environment:
+      RUST_LOG: info
+      RUST_BACKTRACE: 1
+    volumes:
+      - ./config/chirpstack/chirpstack.toml:/etc/chirpstack/chirpstack.toml
+      - chirpstack_data:/data
+    depends_on:
+      - chirpstack-postgres
+      - chirpstack-redis
+      - mosquitto
+    networks:
+      - water-meter-network
+    restart: unless-stopped
+
+  chirpstack-gateway-bridge:
+    image: chirpstack/chirpstack-gateway-bridge:4-latest
+    container_name: chirpstack-gateway-bridge
+    ports:
+      - "1700:1700/udp"
+    environment:
+      RUST_LOG: info
+    volumes:
+      - ./config/chirpstack/gateway-bridge.toml:/etc/chirpstack-gateway-bridge/config.toml
+    depends_on:
+      - mosquitto
+    networks:
+      - water-meter-network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
     driver: local
@@ -82,6 +161,16 @@ volumes:
   thingsboard_logs:
     driver: local
   pgadmin_data:
+    driver: local
+  chirpstack_postgres_data:
+    driver: local
+  chirpstack_redis_data:
+    driver: local
+  chirpstack_data:
+    driver: local
+  mosquitto_data:
+    driver: local
+  mosquitto_logs:
     driver: local
 
 networks:
